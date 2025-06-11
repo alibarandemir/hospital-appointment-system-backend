@@ -41,3 +41,11 @@ pom.xml.next
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Application Properties
+src/main/resources/application.properties
