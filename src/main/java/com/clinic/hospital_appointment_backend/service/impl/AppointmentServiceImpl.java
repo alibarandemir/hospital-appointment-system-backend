@@ -1,5 +1,6 @@
 package com.clinic.hospital_appointment_backend.service.impl;
 
+import com.clinic.hospital_appointment_backend.dto.AppointmentResponseDto;
 import com.clinic.hospital_appointment_backend.dto.CreateAppointmentRequest;
 import com.clinic.hospital_appointment_backend.dto.ResponseDto;
 import com.clinic.hospital_appointment_backend.entity.Appointment;
@@ -24,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -112,25 +114,52 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public ResponseDto<String> getPatientAppointments(Authentication authentication) {
+    public ResponseDto<List<AppointmentResponseDto>> getPatientAppointments(Authentication authentication) {
         Patient patient = patientRepository.findByEmail(authentication.getName());
         if (patient == null) {
-            return new ResponseDto<String>().FailResponse("Hasta bulunamadı.");
+            return new ResponseDto<List<AppointmentResponseDto>>().FailResponse("Hasta bulunamadı.");
         }
         List<Appointment> appointments = appointmentRepository.findByPatient(patient);
-        // Burada isterseniz özel bir DTO ile dönülebilir
-        return new ResponseDto<String>().SuccessResponse("Randevular getirildi.", appointments.toString());
+        List<AppointmentResponseDto> dtos= appointments.stream().map(app->{
+            AppointmentResponseDto appointmentResponseDto= new AppointmentResponseDto();
+            appointmentResponseDto.setId(app.getId());
+            appointmentResponseDto.setDoctorName(app.getDoctor().getName());
+            appointmentResponseDto.setDoctorSurname(app.getDoctor().getSurname());
+            appointmentResponseDto.setDoctorId(app.getDoctor().getId());
+            appointmentResponseDto.setPatientName(app.getPatient().getName());
+            appointmentResponseDto.setPatientId(app.getPatient().getId());
+            appointmentResponseDto.setStatus(app.getStatus().toString());
+            appointmentResponseDto.setNotes(app.getDoctorNotes());
+            appointmentResponseDto.setSpecialization(app.getDoctor().getSpecialization());
+            appointmentResponseDto.setAppointmentDate(app.getAppointmentDate());
+            return appointmentResponseDto;
+        }).collect(Collectors.toList());
+        return new ResponseDto<List<AppointmentResponseDto>>().SuccessResponse("Randevular getirildi.", dtos);
     }
 
     @Override
-    public ResponseDto<String> getDoctorAppointments(Authentication authentication) {
+    public ResponseDto<List<AppointmentResponseDto>> getDoctorAppointments(Authentication authentication) {
         Doctor doctor = doctorRepository.findByEmail(authentication.getName());
         if (doctor == null) {
-            return new ResponseDto<String>().FailResponse("Doktor bulunamadı.");
+            return new ResponseDto<List<AppointmentResponseDto>>().FailResponse("Doktor bulunamadı.");
         }
         List<Appointment> appointments = appointmentRepository.findByDoctor(doctor);
-        // Burada isterseniz özel bir DTO ile dönülebilir
-        return new ResponseDto<String>().SuccessResponse("Randevular getirildi.", appointments.toString());
+
+        List<AppointmentResponseDto> dtos= appointments.stream().map(app->{
+            AppointmentResponseDto appointmentResponseDto= new AppointmentResponseDto();
+            appointmentResponseDto.setId(app.getId());
+            appointmentResponseDto.setDoctorName(app.getDoctor().getName());
+            appointmentResponseDto.setDoctorSurname(app.getDoctor().getSurname());
+            appointmentResponseDto.setDoctorId(app.getDoctor().getId());
+            appointmentResponseDto.setPatientName(app.getPatient().getName());
+            appointmentResponseDto.setPatientId(app.getPatient().getId());
+            appointmentResponseDto.setStatus(app.getStatus().toString());
+            appointmentResponseDto.setNotes(app.getDoctorNotes());
+            appointmentResponseDto.setSpecialization(app.getDoctor().getSpecialization());
+            appointmentResponseDto.setAppointmentDate(app.getAppointmentDate());
+            return appointmentResponseDto;
+        }).collect(Collectors.toList());
+        return new ResponseDto<List<AppointmentResponseDto>>().SuccessResponse("Randevular getirildi.", dtos);
     }
 
     
