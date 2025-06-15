@@ -1,7 +1,9 @@
 package com.clinic.hospital_appointment_backend.controller;
 
+import com.clinic.hospital_appointment_backend.dto.AppointmentResponseDto;
 import com.clinic.hospital_appointment_backend.dto.CreateAppointmentRequest;
 import com.clinic.hospital_appointment_backend.dto.ResponseDto;
+import com.clinic.hospital_appointment_backend.entity.Appointment;
 import com.clinic.hospital_appointment_backend.service.AppointmentService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,32 +33,32 @@ public class AppointmentController {
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
-    @PostMapping("/{appointmentId}/approve")
+    @PutMapping("/{appointmentId}/approve")
     public ResponseEntity<ResponseDto<String>> approveAppointment(@PathVariable Long appointmentId, Authentication authentication) {
         return ResponseEntity.ok(appointmentService.approveAppointment(appointmentId, authentication));
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
-    @PostMapping("/{appointmentId}/reject")
+    @PutMapping("/{appointmentId}/reject")
     public ResponseEntity<ResponseDto<String>> rejectAppointment(@PathVariable Long appointmentId, Authentication authentication) {
         return ResponseEntity.ok(appointmentService.rejectAppointment(appointmentId, authentication));
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
-    @PostMapping("/{appointmentId}/note")
+    @PutMapping("/{appointmentId}/note")
     public ResponseEntity<ResponseDto<String>> addDoctorNote(@PathVariable Long appointmentId, @RequestBody String note, Authentication authentication) {
         return ResponseEntity.ok(appointmentService.addDoctorNote(appointmentId, note, authentication));
     }
 
     @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/patient")
-    public ResponseEntity<ResponseDto<String>> getPatientAppointments(Authentication authentication) {
+    public ResponseEntity<ResponseDto<List<AppointmentResponseDto>>> getPatientAppointments(Authentication authentication) {
         return ResponseEntity.ok(appointmentService.getPatientAppointments(authentication));
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
     @GetMapping("/doctor")
-    public ResponseEntity<ResponseDto<String>> getDoctorAppointments(Authentication authentication) {
+    public ResponseEntity<ResponseDto<List<AppointmentResponseDto>>> getDoctorAppointments(Authentication authentication) {
         return ResponseEntity.ok(appointmentService.getDoctorAppointments(authentication));
     }
     @PreAuthorize("hasRole('PATIENT')")

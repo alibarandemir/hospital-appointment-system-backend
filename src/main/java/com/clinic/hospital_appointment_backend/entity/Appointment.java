@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.clinic.hospital_appointment_backend.enums.AppointmentStatus;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,7 +18,8 @@ import lombok.Data;
 @Entity
 @Table(name = "appointments")
 public class Appointment extends BaseEntity {
-    
+
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;

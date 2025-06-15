@@ -101,6 +101,7 @@ public class AuthServiceImpl implements AuthService {
         } else if (patient != null) {
             role = "PATIENT";
             name = patient.getName();
+
             surname = patient.getSurname();
         } else {
             return new ResponseDto<AuthResponseDto>().FailResponse("Kullanıcı bulunamadı.");
@@ -110,6 +111,6 @@ public class AuthServiceImpl implements AuthService {
         return new ResponseDto<AuthResponseDto>().SuccessResponse("Giriş başarılı", authResponse);
     }
 
-    public record AuthResponseDto(String jwt, String role, String name, String surname) {
+    public record AuthResponseDto(String token, String role, String name, String surname) {
     }
 }
