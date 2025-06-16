@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+// Randevu işlemlerini yöneten servis sınıfı
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
     @Autowired
@@ -36,6 +37,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Autowired
     private PatientRepository patientRepository;
 
+    // Yeni randevu oluşturma metodu
     @Override
     public ResponseDto<String> createAppointment(CreateAppointmentRequest request, Authentication authentication) {
         // Hasta email ile bulunur
@@ -65,6 +67,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new ResponseDto<String>().SuccessResponse("Randevu başarıyla oluşturuldu.", null);
     }
 
+    // Doktorun randevuyu onaylama metodu
     @Override
     public ResponseDto<String> approveAppointment(Long appointmentId, Authentication authentication) {
         Optional<Appointment> appointmentOpt = appointmentRepository.findById(appointmentId);
@@ -81,6 +84,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new ResponseDto<String>().SuccessResponse("Randevu onaylandı.", null);
     }
 
+    // Doktorun randevuyu reddetme metodu
     @Override
     public ResponseDto<String> rejectAppointment(Long appointmentId, Authentication authentication) {
         Optional<Appointment> appointmentOpt = appointmentRepository.findById(appointmentId);
@@ -97,6 +101,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new ResponseDto<String>().SuccessResponse("Randevu reddedildi.", null);
     }
 
+    // Doktorun randevuya not ekleme metodu
     @Override
     public ResponseDto<String> addDoctorNote(Long appointmentId, String note, Authentication authentication) {
         Optional<Appointment> appointmentOpt = appointmentRepository.findById(appointmentId);
@@ -113,6 +118,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new ResponseDto<String>().SuccessResponse("Not eklendi.", null);
     }
 
+    // Hastanın kendi randevularını görüntüleme metodu
     @Override
     public ResponseDto<List<AppointmentResponseDto>> getPatientAppointments(Authentication authentication) {
         Patient patient = patientRepository.findByEmail(authentication.getName());
@@ -137,6 +143,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new ResponseDto<List<AppointmentResponseDto>>().SuccessResponse("Randevular getirildi.", dtos);
     }
 
+    // Doktorun kendi randevularını görüntüleme metodu
     @Override
     public ResponseDto<List<AppointmentResponseDto>> getDoctorAppointments(Authentication authentication) {
         Doctor doctor = doctorRepository.findByEmail(authentication.getName());
@@ -162,8 +169,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new ResponseDto<List<AppointmentResponseDto>>().SuccessResponse("Randevular getirildi.", dtos);
     }
 
-    
-
+    // Doktorun müsait randevu saatlerini getirme metodu
     @Override
     public ResponseDto<AvailabilityResponse> getAvailability(Long doctorId, LocalDate date) {
         // 09:00 - 13:00 arası, her 30 dakikada bir slot
