@@ -15,14 +15,17 @@ import javax.print.Doc;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// Doktor işlemlerini yöneten servis sınıfı
 @Service
 @AllArgsConstructor
 public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
 
+    // Sistemdeki tüm doktorları listeleyen metod
     @Override
     public ResponseDto<List<DoctorResponseDto>> getAllDoctors(){
         List<Doctor> doctors=doctorRepository.findAll();
+        // Entity'den DTO'ya dönüşüm yapılır
         List<DoctorResponseDto> dtos= doctors.stream().map(doctor -> {
             DoctorResponseDto doctorResponseDto= new DoctorResponseDto();
             doctorResponseDto.setId(doctor.getId());
@@ -34,6 +37,8 @@ public class DoctorServiceImpl implements DoctorService {
         }).collect(Collectors.toList());
         return new  ResponseDto<List<DoctorResponseDto>>().SuccessResponse("Doktorlar getirildi",dtos);
     }
+
+    // Giriş yapmış doktorun kendi bilgilerini getiren metod
     @Override
     public ResponseDto<DoctorController.DoctorDto> getDoctor(Authentication authentication){
         String doctorEmail= authentication.getName();
@@ -41,7 +46,4 @@ public class DoctorServiceImpl implements DoctorService {
         DoctorController.DoctorDto dto= new DoctorController.DoctorDto(doctor.getId(),doctor.getName(),doctor.getSurname(),doctor.getEmail(),doctor.getSpecialization());
         return  new ResponseDto< DoctorController.DoctorDto >().SuccessResponse("",dto);
     }
-
-
-
 }

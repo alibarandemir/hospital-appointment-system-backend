@@ -20,6 +20,7 @@ import com.clinic.hospital_appointment_backend.repository.PatientRepository;
 import com.clinic.hospital_appointment_backend.service.AuthService;
 import com.clinic.hospital_appointment_backend.util.JwtUtil;
 
+// Kimlik doğrulama ve kullanıcı yönetimi işlemlerini gerçekleştiren servis sınıfı
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -38,8 +39,10 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private PatientRepository patientRepository;
 
+    // Yeni kullanıcı kaydı oluşturma metodu
     @Override
     public ResponseDto<AuthResponseDto> register(RegisterRequest request) {
+        // Email kontrolü - aynı email ile kayıt var mı?
         if (doctorRepository.findByEmail(request.getEmail()) != null || patientRepository.findByEmail(request.getEmail()) != null) {
             return new ResponseDto<AuthResponseDto>().FailResponse("Bu e-posta adresi ile zaten bir kullanıcı kayıtlı.");
         }
@@ -48,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
         String surname = null;
         String role = null;
 
+        // Kullanıcı tipine göre kayıt işlemi (Doktor/Hasta)
         if ("DOCTOR".equalsIgnoreCase(request.getRole().toString())) {
             Doctor doctor = new Doctor();
             doctor.setName(request.getName());
@@ -74,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
             role = "PATIENT";
         }
 
+        // Kayıt sonrası otomatik giriş yapma
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -84,13 +89,17 @@ public class AuthServiceImpl implements AuthService {
         return new ResponseDto<AuthResponseDto>().SuccessResponse("Kayıt başarılı", authResponse);
     }
 
+    // Kullanıcı girişi yapma metodu
     @Override
     public ResponseDto<AuthResponseDto> login(LoginRequest request) {
+        // Kullanıcı bilgilerini doğrulama
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        // Kullanıcı tipini belirleme (Doktor/Hasta)
         Doctor doctor = doctorRepository.findByEmail(request.getEmail());
         Patient patient = patientRepository.findByEmail(request.getEmail());
         String role, name, surname;
@@ -101,16 +110,18 @@ public class AuthServiceImpl implements AuthService {
         } else if (patient != null) {
             role = "PATIENT";
             name = patient.getName();
-
             surname = patient.getSurname();
         } else {
             return new ResponseDto<AuthResponseDto>().FailResponse("Kullanıcı bulunamadı.");
         }
+
+        // JWT token oluşturma ve yanıt dönme
         String jwt = jwtUtil.generateToken(authentication, role);
         AuthResponseDto authResponse = new AuthResponseDto(jwt, role, name, surname);
         return new ResponseDto<AuthResponseDto>().SuccessResponse("Giriş başarılı", authResponse);
     }
 
+    // Kimlik doğrulama yanıtı için kullanılan record sınıfı
     public record AuthResponseDto(String token, String role, String name, String surname) {
     }
 }
